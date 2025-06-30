@@ -13,13 +13,39 @@ export const JsonTable: React.FC<Props> = ({ data }) => {
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
-    <div className="overflow-x-auto border rounded p-2">
-      <table className="min-w-full">
+    <div
+      style={{
+        overflowX: 'auto',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        padding: '12px',
+        maxWidth: '100%',
+      }}
+    >
+      <table
+        style={{
+          minWidth: '800px',
+          borderCollapse: 'collapse',
+          width: '100%',
+          fontSize: '14px',
+          textAlign: 'left',
+        }}
+      >
         <thead>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <th key={header.id} className="border px-2 py-1">
+                <th
+                  key={header.id}
+                  style={{
+                    border: '1px solid #666',
+                    padding: '8px 12px',
+                    backgroundColor: '#c01c7b',
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
               ))}
@@ -28,9 +54,16 @@ export const JsonTable: React.FC<Props> = ({ data }) => {
         </thead>
         <tbody>
           {table.getRowModel().rows.map(row => (
-            <tr key={row.id}>
+            <tr key={row.id} style={{ cursor: 'default', transition: 'background-color 0.2s' }}>
               {row.getVisibleCells().map(cell => (
-                <td key={cell.id} className="border px-2 py-1">
+                <td
+                  key={cell.id}
+                  style={{
+                    border: '1px solid #ccc',
+                    padding: '8px 12px',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}

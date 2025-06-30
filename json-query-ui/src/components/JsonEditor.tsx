@@ -15,8 +15,6 @@ export const JsonEditor: React.FC<Props> = ({ value, onChange, readOnly }) => {
         borderRadius: 4, 
         overflow: "hidden", 
         marginBottom: "1rem", 
-        marginLeft: "1%",
-        marginRight: "3%",
         height:"50vh"
         }}>
       <Editor

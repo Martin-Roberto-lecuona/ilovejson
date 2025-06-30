@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { JsonEditor } from './components/JsonEditor';
 import { QueryInput } from './components/QueryInput';
 import { JsonTable } from './components/JsonTable';
-import { JsonPreview } from './components/JsonPreview';
 import jmespath from 'jmespath';
 
 function App() {
@@ -10,7 +9,6 @@ function App() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [jsonArrayKey, setJsonArrayKey] = useState("");
-  const [jsonOut, setJsonOut] = useState("")
 
   const jsonFields = useMemo(() => {
   try {
@@ -42,11 +40,28 @@ function App() {
 
   return (
     <div style={{padding:"4", maxWidth:"100%", margin:"2%"}}>
-      <h1 style={{textDecoration:"bold", marginBottom:"2%"}}> Coelsa JSON editor and query</h1>
-      <JsonEditor value={jsonInput} onChange={(v) => setJsonInput(v ?? '')} readOnly={false}/>
-      <QueryInput setQuery={setQuery} onRun={handleRun} jsonFields={jsonFields} jsonArrayKey={jsonArrayKey} />
-      <JsonEditor value={JSON.stringify(results, null, 2)} onChange={()=>("")} readOnly={true}/>
-      {/* <JsonTable data={results} /> */}
+      {/* <h1 style={{textDecoration:"bold", marginBottom:"2%"}}> COELSA JSON editor and query</h1> */}
+      <h1
+        style={{
+          fontSize: '30px',
+          fontWeight: 'bold',
+          marginBottom: '20px',
+          color: '#1f2937', 
+          borderBottom: '3px solid #c01c7b', 
+          paddingBottom: '8px',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+        }}
+      >
+        COELSA JSON Editor and Query
+      </h1>
+
+      <div style={{marginLeft: "1%", marginRight: "3%",}}>
+        <JsonEditor value={jsonInput} onChange={(v) => setJsonInput(v ?? '')} readOnly={false}/>
+        <QueryInput setQuery={setQuery} onRun={handleRun} jsonFields={jsonFields} jsonArrayKey={jsonArrayKey} />
+        <JsonEditor value={JSON.stringify(results, null, 2)} onChange={()=>("")} readOnly={true}/>
+        <JsonTable data={results} />
+      </div>
     </div>
   );
 }

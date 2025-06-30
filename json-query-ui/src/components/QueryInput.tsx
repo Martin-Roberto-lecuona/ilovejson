@@ -15,7 +15,7 @@ const operators = [
   { label: "contiene", value: "contains" },
 ];
 
-export const QueryInput: React.FC<Props> = ({ setQuery, onRun, jsonFields,jsonArrayKey }) => {
+export const QueryInput: React.FC<Props> = ({ setQuery, onRun, jsonFields, jsonArrayKey }) => {
   const [field, setField] = useState(jsonFields[0] || "");
   const [operator, setOperator] = useState("==");
   const [value, setValue] = useState("");
@@ -40,22 +40,68 @@ export const QueryInput: React.FC<Props> = ({ setQuery, onRun, jsonFields,jsonAr
   }, [jsonFields, field]);
 
   return (
-    <div className="my-4 flex flex-wrap gap-2 items-center">
-      <span className="text-sm">Mostrar personas donde</span>
-      <select value={field} onChange={(e) => setField(e.target.value)} className="border p-2 rounded">
+    <div
+      style={{
+        marginTop: '16px',
+        marginBottom: '16px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        alignItems: 'center'
+      }}
+    >
+      <span style={{ fontSize: '18px', fontWeight: 'bold' }}>CONSULTA:</span>
+
+      <select
+        value={field}
+        onChange={(e) => setField(e.target.value)}
+        style={{
+          border: '1px solid #ccc',
+          padding: '8px',
+          borderRadius: '6px',
+          minWidth: '100px'
+        }}
+      >
         {jsonFields.map(f => <option key={f} value={f}>{f}</option>)}
       </select>
-      <select value={operator} onChange={(e) => setOperator(e.target.value)} className="border p-2 rounded">
+
+      <select
+        value={operator}
+        onChange={(e) => setOperator(e.target.value)}
+        style={{
+          border: '1px solid #ccc',
+          padding: '8px',
+          borderRadius: '6px',
+          minWidth: '120px'
+        }}
+      >
         {operators.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
       </select>
+
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="border p-2 rounded"
         placeholder="valor"
+        style={{
+          border: '1px solid #ccc',
+          padding: '8px',
+          borderRadius: '6px',
+          minWidth: '160px'
+        }}
       />
-      <button onClick={onRun} className="bg-blue-600 text-white px-4 rounded">
+
+      <button
+        onClick={onRun}
+        style={{
+          backgroundColor: '#c01c7b',
+          color: '#fff',
+          padding: '8px 16px',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}
+      >
         Filtrar
       </button>
     </div>
