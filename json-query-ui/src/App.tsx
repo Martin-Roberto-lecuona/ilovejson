@@ -10,25 +10,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [jsonArrayKey, setJsonArrayKey] = useState("");
-
-  const jsonFields_old = useMemo(() => {
-    try {
-      const parsed = JSON.parse(jsonInput);
-      // Buscar la primera propiedad que sea un array de objetos
-      const firstArray = Object.values(parsed).find(
-        (v) => Array.isArray(v) && typeof v[0] === 'object' && v[0] !== null
-      );
-      const rta = Array.isArray(firstArray) && firstArray.length > 0 && typeof firstArray[0] === 'object' && firstArray[0] !== null
-      ? Object.keys(firstArray[0])
-      : [];
-      console.log("-------------------");
-      console.log(rta);
-      console.log("-------------------");
-      return rta
-    } catch {
-      return [];
-    }
-  }, [jsonInput]);
+  const [jsonOut, setJsonOut] = useState("")
 
   const jsonFields = useMemo(() => {
   try {
@@ -59,12 +41,12 @@ function App() {
   };
 
   return (
-    <div className="p-4 max-w-5xl mx-auto m-50">
-      <h1 className="text-xl font-bold mb-4">Coelsa JSON editor and query</h1>
+    <div style={{padding:"4", maxWidth:"100%", margin:"2%"}}>
+      <h1 style={{textDecoration:"bold", marginBottom:"2%"}}> Coelsa JSON editor and query</h1>
       <JsonEditor value={jsonInput} onChange={(v) => setJsonInput(v ?? '')} readOnly={false}/>
       <QueryInput setQuery={setQuery} onRun={handleRun} jsonFields={jsonFields} jsonArrayKey={jsonArrayKey} />
-      <JsonEditor value={JSON.stringify(results, null, 2)} onChange={(v) => setJsonInput(v ?? '')} readOnly={true}/>
-      <JsonTable data={results} />
+      <JsonEditor value={JSON.stringify(results, null, 2)} onChange={()=>("")} readOnly={true}/>
+      {/* <JsonTable data={results} /> */}
     </div>
   );
 }
