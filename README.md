@@ -1,2 +1,2 @@
 # ilovejson
-beurify and search in json 
+Beautify and search in json 
