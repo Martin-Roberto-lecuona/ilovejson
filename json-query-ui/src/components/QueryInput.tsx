@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface Props {
@@ -6,6 +7,13 @@ interface Props {
   jsonFields: string[];
   jsonArrayKey: string;
 }
+
+type Filter = {
+  field: string;
+  operator: string;
+  value: string;
+  not: boolean;
+};
 
 const operators = [
   { label: "es igual a", value: "==" },
@@ -16,94 +24,107 @@ const operators = [
 ];
 
 export const QueryInput: React.FC<Props> = ({ setQuery, onRun, jsonFields, jsonArrayKey }) => {
-  const [field, setField] = useState(jsonFields[0] || "");
-  const [operator, setOperator] = useState("==");
-  const [value, setValue] = useState("");
+  
+  const [filters, setFilters] = useState<Filter[]>([
+    { field: jsonFields[0] || "", operator: "==", value: "", not: false }
+  ]);
 
   useEffect(() => {
-    if (!field) return;
-    let query = "";
-    if (operator === "contains") {
-      query = `${jsonArrayKey}[?contains(${field}, '${value}')]`;
-    } else if (isNaN(Number(value))) {
-      query = `${jsonArrayKey}[?${field} ${operator} '${value}']`;
-    } else {
-      query = `${jsonArrayKey}[?${field} ${operator} \`${value}\`]`;
-    }
-    setQuery(query);
-  }, [field, operator, value, setQuery, jsonArrayKey]);
+    const expressions = filters.map(({ field, operator, value, not }) => {
+      if (!field) return "";
 
-  useEffect(() => {
-    if (!jsonFields.includes(field)) {
-      setField(jsonFields[0] || "");
-    }
-  }, [jsonFields, field]);
+      const prefix = not ? "!" : "";
+      const left = operator === "contains"
+        ? `contains(${field}, '${value}')`
+        : isNaN(Number(value))
+          ? `${field} ${operator} '${value}'`
+          : `${field} ${operator} \`${value}\``;
+
+      return `${prefix}(${left})`;
+    });
+
+    const combined = expressions.filter(Boolean).join(" && ");
+    const fullQuery = `${jsonArrayKey}[?${combined}]`;
+    setQuery(fullQuery);
+  }, [filters, setQuery, jsonArrayKey]);
+
+  const updateFilter = (index: number, newFilter: Partial<Filter>) => {
+    setFilters((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], ...newFilter };
+      return updated;
+    });
+  };
+
+  const addFilter = () => {
+    setFilters([...filters, { field: jsonFields[0] || "", operator: "==", value: "", not: false }]);
+  };
+
+  const removeFilter = (index: number) => {
+    setFilters(filters.filter((_, i) => i !== index));
+  };
 
   return (
-    <div
-      style={{
-        marginTop: '16px',
-        marginBottom: '16px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '8px',
-        alignItems: 'center'
-      }}
-    >
-      <span style={{ fontSize: '18px', fontWeight: 'bold' }}>CONSULTA:</span>
+    <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '12px', fontSize: '18px', fontWeight: 'bold' }}>CONSULTAS:</div>
 
-      <select
-        value={field}
-        onChange={(e) => setField(e.target.value)}
-        style={{
-          border: '1px solid #ccc',
-          padding: '8px',
-          borderRadius: '6px',
-          minWidth: '100px'
-        }}
-      >
-        {jsonFields.map(f => <option key={f} value={f}>{f}</option>)}
-      </select>
+      {filters.map((filter, index) => (
+        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={filter.not}
+              onChange={(e) => updateFilter(index, { not: e.target.checked })}
+            /> Negar
+          </label>
 
-      <select
-        value={operator}
-        onChange={(e) => setOperator(e.target.value)}
-        style={{
-          border: '1px solid #ccc',
-          padding: '8px',
-          borderRadius: '6px',
-          minWidth: '120px'
-        }}
-      >
-        {operators.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
-      </select>
+          <select
+            value={filter.field}
+            onChange={(e) => updateFilter(index, { field: e.target.value })}
+            style={{ border: '1px solid #ccc', padding: '8px', borderRadius: '6px', minWidth: '100px' }}
+          >
+            {jsonFields.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
 
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="valor"
-        style={{
-          border: '1px solid #ccc',
-          padding: '8px',
-          borderRadius: '6px',
-          minWidth: '160px'
-        }}
-      />
+          <select
+            value={filter.operator}
+            onChange={(e) => updateFilter(index, { operator: e.target.value })}
+            style={{ border: '1px solid #ccc', padding: '8px', borderRadius: '6px', minWidth: '120px' }}
+          >
+            {operators.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
+          </select>
 
-      <button
-        onClick={onRun}
-        style={{
-          backgroundColor: '#c01c7b',
-          color: '#fff',
-          padding: '8px 16px',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer'
-        }}
-      >
-        Filtrar
-      </button>
+          <input
+            type="text"
+            value={filter.value}
+            onChange={(e) => updateFilter(index, { value: e.target.value })}
+            placeholder="valor"
+            style={{ border: '1px solid #ccc', padding: '8px', borderRadius: '6px', minWidth: '160px' }}
+          />
+
+          {filters.length > 1 && (
+            <button onClick={() => removeFilter(index)} style={{ background: '#aaa', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}>
+              ✕
+            </button>
+          )}
+        </div>
+      ))}
+
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <button
+          onClick={addFilter}
+          style={{ backgroundColor: '#4caf50', color: '#fff', padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          + Agregar Filtro
+        </button>
+
+        <button
+          onClick={onRun}
+          style={{ backgroundColor: '#c01c7b', color: '#fff', padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          Filtrar
+        </button>
+      </div>
     </div>
   );
 };

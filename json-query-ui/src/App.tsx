@@ -30,6 +30,7 @@ function App() {
 
   const handleRun = () => {
     try {
+      // setResults([query])
       const json = JSON.parse(jsonInput);
       const result = jmespath.search(json, query);
       setResults(Array.isArray(result) ? result : [result]);
