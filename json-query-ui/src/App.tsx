@@ -52,7 +52,6 @@ function App() {
 
 
   const handleRun = () => {
-    setFirst(false)
     try {
       const json = JSON.parse(jsonInput);
       const result = jmespath.search(json, query);
